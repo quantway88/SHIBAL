@@ -7,7 +7,7 @@
 ## Status
 
 Development only. No mainnet launch, sale, liquidity pool, or promotion.
-On-chain issuance and roundtrip verification are **not completed**: free devnet SOL funding is currently blocked by faucet eligibility. Offline tests: 9 passing. npm audit at development time: 0 known vulnerabilities (not a security audit).
+Devnet issuance and an 18-token roundtrip were completed and verified on 2026-10-28. Mint: `YrDkqvMwkF2pP8eJjZiq9N1Ph6voryK1FRTLX1KcoKk`. Mint and freeze authorities are null; metadata update authority is retained by the test payer. Offline tests: 9 passing. npm audit at development time: 0 known vulnerabilities (not a security audit).
 
 ## Test configuration
 
@@ -65,15 +65,15 @@ npm run send -- RECIPIENT_PUBLIC_ADDRESS 18 send-custom-first
 
 ## Metadata and local assets
 
-`assets/18.svg` is a simple test emblem. Run `npm run assets` to serve `http://127.0.0.1:8180/metadata.json`. Localhost assets cannot be retrieved by external wallets.
+`assets/shibal-18-cute-v1.png` is the approved cute 18 emblem; `assets/18.svg` is the original prototype. Run `npm run assets` to serve `http://127.0.0.1:8180/metadata.json`. Localhost assets cannot be retrieved by external wallets.
 
-Without hosting, deployment creates metadata with an empty URI; on-chain name/symbol and metadata creation still require actual devnet verification. To set a hosted JSON URI before issuance, set `METADATA_URI`. To change it afterward:
+Without hosting, deployment creates metadata with an empty URI; on-chain name/symbol and metadata creation have been verified on devnet. To set a hosted JSON URI before issuance, set `METADATA_URI`. To change it afterward:
 
 ```sh
 npm run metadata -- https://YOUR_HOST/metadata.json metadata-first
 ```
 
-The metadata update authority remains with the payer and is distinct from the revoked mint authority. Replace the JSON image and properties.files.uri with publicly accessible asset URLs before using remote hosting. No metadata hosting is configured; the assets are published here as source files only. Some wallets may require PNG instead of SVG. Display is not guaranteed solely by metadata registration.
+The metadata update authority remains with the payer and is distinct from the revoked mint authority. Replace the JSON image and properties.files.uri with publicly accessible asset URLs before using remote hosting. The approved PNG and metadata JSON are served from public GitHub raw URLs. The image URL is pinned to a commit; this is development hosting, not guaranteed permanent storage. Some wallets may require PNG instead of SVG. Display is not guaranteed solely by metadata registration.
 
 ## Dependencies
 
