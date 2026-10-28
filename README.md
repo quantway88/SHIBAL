@@ -75,7 +75,15 @@ npm run metadata -- https://YOUR_HOST/metadata.json metadata-first
 
 The metadata update authority remains with the payer and is distinct from the revoked mint authority. Replace the JSON image and properties.files.uri with publicly accessible asset URLs before using remote hosting. The approved PNG and metadata JSON are served from public GitHub raw URLs. The image URL is pinned to a commit; this is development hosting, not guaranteed permanent storage. Some wallets may require PNG instead of SVG. Display is not guaranteed solely by metadata registration.
 
-## Dependencies
+## Local 18-transfer lab
+
+After deployment and the CLI roundtrip have created both test token accounts, run `npm run lab` (Windows: `./dev.ps1 lab`) and open http://127.0.0.1:8181 in Chrome. This is a local development tool using the two dedicated devnet wallets, not a browser-extension wallet connection. Keep this server local; do not deploy it or expose its port through a tunnel.
+
+The buttons transfer exactly 18 tokens A → B or B → A. The server checks devnet genesis and token invariants, accepts only the fixed wallet pair, and requires a same-origin session token for writes. Request IDs and signatures are persisted before submission; a retry checks the existing transaction instead of issuing another one. An unresolved transaction blocks new requests and requires journal recovery. Do not delete journals to work around a timeout. Browser requests cannot specify an amount, recipient, mint, or key path. The local server process has access to the dedicated test keys; browsers receive no private keys.
+
+Run `npm run test:devnet-safety` to simulate revoked mint authority, absent freeze authority, and insufficient balance. The simulation never submits these transactions and checks that supply and balances stay unchanged. Supply remains 1.8 billion for these devnet experiments; mainnet settings are undecided.
+
+## SDK versions
 
 Pinned to a compatible official SDK family: Solana Kit 6.10.0, Token 0.13.0, System 0.12.0 and Metaplex Token Metadata Kit 0.0.3. Metaplex currently specifies Kit ^6.5.0; upgrading to another major requires a coordinated compatibility review. The old web3.js/spl-token tree with 9 audit findings was removed without `npm audit fix --force`.
 

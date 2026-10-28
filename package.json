@@ -14,7 +14,9 @@
     "roundtrip": "node src/cli.mjs roundtrip",
     "recover": "node src/cli.mjs recover",
     "metadata": "node src/cli.mjs metadata",
-    "assets": "node src/serve-assets.mjs"
+    "assets": "node src/serve-assets.mjs",
+    "lab": "node src/web-server.mjs",
+    "test:devnet-safety": "node src/simulate-safety.mjs"
   },
   "dependencies": {
     "@solana/kit": "6.10.0",

@@ -11,5 +11,7 @@ if ($Command -in @('ci','audit')) {
   }
 } elseif ($Command -eq 'test') { node --test @Rest }
 elseif ($Command -eq 'assets') { node src/serve-assets.mjs }
+elseif ($Command -eq 'lab') { node src/web-server.mjs }
+elseif ($Command -eq 'test:devnet-safety') { node src/simulate-safety.mjs }
 else { node src/cli.mjs $Command @Rest }
 exit $LASTEXITCODE
