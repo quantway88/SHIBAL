@@ -73,7 +73,7 @@ Without hosting, deployment creates metadata with an empty URI; on-chain name/sy
 npm run metadata -- https://YOUR_HOST/metadata.json metadata-first
 ```
 
-The metadata update authority remains with the payer and is distinct from the revoked mint authority. Replace the JSON image and properties.files.uri with publicly accessible asset URLs before using remote hosting. No hosting is configured and no permanent upload has been made. Some wallets may require PNG instead of SVG. Display is not guaranteed solely by metadata registration.
+The metadata update authority remains with the payer and is distinct from the revoked mint authority. Replace the JSON image and properties.files.uri with publicly accessible asset URLs before using remote hosting. No metadata hosting is configured; the assets are published here as source files only. Some wallets may require PNG instead of SVG. Display is not guaranteed solely by metadata registration.
 
 ## Dependencies
 
@@ -86,3 +86,4 @@ Pinned to a compatible official SDK family: Solana Kit 6.10.0, Token 0.13.0, Sys
 - https://github.com/solana-labs/cluster/blob/master/service-env-devnet.sh
 
 No license is granted by this repository beyond GitHub's applicable platform terms; a project license has not yet been selected.
+
