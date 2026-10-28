@@ -1,0 +1,7 @@
+{
+  "name": "SHIBAL",
+  "symbol": "SHIBAL",
+  "description": "말 대신 보내는 18. 받으면 묘하게 이득인 비추천. Devnet 테스트 자산이며 실제 출시 설정이 아닙니다.",
+  "image": "http://127.0.0.1:8180/18.svg",
+  "properties": {"files": [{"uri": "http://127.0.0.1:8180/18.svg", "type": "image/svg+xml"}]}
+}

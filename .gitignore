@@ -1,0 +1,9 @@
+node_modules/
+evidence/
+*.keypair.json
+*.pem
+*.key
+.env
+.env.*
+*.tmp
+*.zip

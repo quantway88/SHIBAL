@@ -1,0 +1,9 @@
+{
+  "name": "SHIBAL",
+  "symbol": "SHIBAL",
+  "emblem": "18",
+  "network": "devnet",
+  "decimals": 6,
+  "supply": "1800000000",
+  "reactionAmount": "18"
+}
