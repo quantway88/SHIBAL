@@ -107,3 +107,19 @@ Pinned to a compatible official SDK family: Solana Kit 6.10.0, Token 0.13.0, Sys
 
 No license is granted by this repository beyond GitHub's applicable platform terms; a project license has not yet been selected.
 
+
+## Public Kakao devnet pilot
+
+The public receiver site is https://shibal-devnet-gifts.spunkycamel22.chatgpt.site. Its separate source checkout is sites/shibal-public (managed by Sites, excluded from this repository). This repository contains the local signing relay and shared proof logic; the public site contains no wallet private keys.
+
+Only the publisher wallet can register funded invitations or settle delivery records, using short-lived domain-bound signed messages. A receiver must possess the invitation code and sign a message binding the site origin, gift ID, mint, exact amount, invitation hash and receiving address. D1 atomically binds the first valid recipient. The local relay independently verifies the signature against its own funded record and uses persisted transaction journals. It pays fees and token-account rent with free devnet SOL. Nothing in the website submits a mainnet transaction.
+
+Create a resumable invitation with node src/public-gifts.mjs create 18 UNIQUE_LABEL. Reusing the same label resumes the same gift; never choose a fresh label to work around uncertain submission. The complete URL is saved outside Git under the private wallet directory as UNIQUE_LABEL-link.txt. Its #code fragment is an invitation capability, not a wallet key. Share the complete URL only with the intended tester; forwarding it allows somebody else to claim first. This pilot does not authenticate a Kakao identity.
+
+Run ./public-relay.ps1 and leave the process and computer on while testing. Do not run a second relay. A stale evidence/public-gifts/relay.lock after a crash requires checking its PID and pending journals before removing only the stale lock. The relay connects outbound only; do not expose the local signing servers or ports. Receiver status polls every 15 seconds and indicates whether the relay has recently checked in.
+
+A tester opens the full link in Phantom's browser (the page provides a mobile browse link), uses a separate test wallet with Solana Devnet enabled, connects, and approves only the displayed gift-claim message. Desktop Phantom uses its injected provider. No seed phrase, private-key import, SOL payment, token approval or transaction signature is requested from the recipient. Other wallet providers and Kakao in-app injected-wallet support are not implemented.
+
+Invitations expire after 48 hours for new claims. Already requested deliveries may complete later. Automatic refund is not implemented; expired or cancelled pilot funds remain recoverable with the local dedicated holding key and require operator reconciliation. Do not remove keys, records or pending journals. External recipients can move their received tokens; the old strict accounting verifier will then report untracked holdings rather than alter supply.
+
+Check proof logic with npm test. Run scripts/check-public-gifts.mjs only for the pre-registered public-qa-1 invitation; this explicitly tests the hosted endpoint and a real devnet transfer. Kakao crawler-style HTTP checks verify OG tags but do not prove how an actual Kakao mobile client renders a preview. That and mobile Phantom approval remain real-device acceptance tests.

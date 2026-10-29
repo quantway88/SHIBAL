@@ -2,8 +2,16 @@ import {address} from '@solana/kit';
 import {fetchAllMaybeToken,TOKEN_PROGRAM_ADDRESS} from '@solana-program/token';
 import {ata} from './token.mjs';
 import {listGifts} from './gifts.mjs';
-export async function giftBalances(rpc,mint){
- const gifts=listGifts().filter(g=>g.mint===mint);if(!gifts.length)return {total:0n,accounts:[]};
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+export async function giftBalances(rpc,mint,excludedOwners=[]){
+ const publicDir=path.join(path.dirname(path.dirname(fileURLToPath(import.meta.url))),'evidence/public-gifts');
+ const publicGifts=fs.existsSync(publicDir)?fs.readdirSync(publicDir).filter(n=>/^gift-[0-9a-f-]{36}\.gift\.json$/.test(n)).map(n=>{const g=JSON.parse(fs.readFileSync(path.join(publicDir,n),'utf8'));return {...g,status:g.deposit?'funded':'preparing'};}):[];
+ const gifts=[...listGifts().filter(g=>g.mint===mint),...publicGifts];
+ const seen=new Set([...excludedOwners,...gifts.map(g=>g.escrow)]);
+ for(const g of publicGifts)if(g.recipient&&!seen.has(g.recipient)){seen.add(g.recipient);gifts.push({id:'recipient:'+g.recipient,escrow:g.recipient,status:'preparing'});}
+ if(!gifts.length)return {total:0n,accounts:[]};
  const addresses=await Promise.all(gifts.map(g=>ata(mint,address(g.escrow))));
  const tokens=await fetchAllMaybeToken(rpc,addresses,{commitment:'confirmed'});
  const accounts=tokens.map((t,i)=>{const g=gifts[i];

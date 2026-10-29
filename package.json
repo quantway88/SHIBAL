@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/*.test.mjs",
     "plan": "node src/cli.mjs plan",
     "deploy": "node src/cli.mjs deploy",
     "send": "node src/cli.mjs send",

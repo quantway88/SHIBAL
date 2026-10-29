@@ -1,0 +1,17 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';
+import {createSolanaRpc,address,generateKeyPairSigner} from '@solana/kit';import {fetchToken} from '@solana-program/token';
+import {wallet,walletDir} from '../src/wallet.mjs';import {signText,relayOnce} from '../src/public-gifts.mjs';import {read,save} from '../src/journal.mjs';import {ata,assertDevnet} from '../src/token.mjs';import {ORIGIN,MINT,claimText,hashCode} from '../src/gift-proof.mjs';
+const {id,code}=read(path.join(walletDir,'invitations.json'))['public-qa-1'];const recipient=await wallet('recipient');const hash=await hashCode(code),text=claimText(id,'18',recipient.address,hash),signature=await signText(recipient,text);
+const get=async()=>{const r=await fetch(ORIGIN+'/api/gifts?id='+id);assert.equal(r.status,200);return r.json();};
+const post=b=>fetch(ORIGIN+'/api/gifts',{method:'POST',headers:{'content-type':'application/json',origin:ORIGIN},body:JSON.stringify(b)});
+const before=await get();const htmlResponse=await fetch(ORIGIN+'/gift/'+id,{headers:{'user-agent':'kakaotalk-scrap/1.0'}});const html=await htmlResponse.text();assert.equal(htmlResponse.status,200);assert.ok(html.includes('og:image'));assert.ok(html.includes('/cards/18-v1.png'));assert.equal((await get()).status,before.status);
+const image=await fetch(ORIGIN+'/cards/18-v1.png');assert.equal(image.status,200);
+assert.equal((await post({id,code,recipient:recipient.address,signature:Buffer.alloc(64).toString('base64')})).status,403);
+assert.equal((await post({id,code:'00'.repeat(32),recipient:recipient.address,signature})).status,403);
+assert.equal((await post({admin:{text:'{}',signature}})).status,403);
+const claim=await post({id,code,recipient:recipient.address,signature});assert.equal(claim.status,200);
+const attacker=await generateKeyPairSigner();const otherSig=await signText(attacker,claimText(id,'18',attacker.address,hash));assert.equal((await post({id,code,recipient:attacker.address,signature:otherSig})).status,409);
+await relayOnce();const done=await get();assert.equal(done.status,'claimed');assert.equal(done.recipient,recipient.address);
+const rpc=createSolanaRpc('https://api.devnet.solana.com');await assertDevnet(rpc);const token=await ata(address(MINT),recipient.address);const balance=(await fetchToken(rpc,token,{commitment:'confirmed'})).data.amount;
+assert.equal((await post({id,code,recipient:recipient.address,signature})).status,200);await relayOnce();assert.equal((await get()).signature,done.signature);assert.equal((await fetchToken(rpc,token,{commitment:'confirmed'})).data.amount,balance);
+save('evidence/public-gifts/integration.json',{at:new Date().toISOString(),id,signature:done.signature,recipient:recipient.address,recipientBalance:balance,checks:['public HTTPS','Kakao crawler OG tags','PNG HTTP200','crawler has no side effect','forged signature rejected','wrong invitation rejected','forged publisher rejected','other wallet rejected','valid signed claim delivered','repeated claim has unchanged signature and balance']});console.log('Public claim integration passed: '+done.signature);

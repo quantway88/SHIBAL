@@ -9,7 +9,7 @@ if ($Command -in @('ci','audit')) {
     if (!(Test-Path -LiteralPath $npmCli)) { throw 'Install Node.js 22.18+ with npm, then run npm ci --ignore-scripts.' }
     node $npmCli $Command @Rest
   }
-} elseif ($Command -eq 'test') { node --test @Rest }
+} elseif ($Command -eq 'test') { node --test 'test/*.test.mjs' @Rest }
 elseif ($Command -eq 'assets') { node src/serve-assets.mjs }
 elseif ($Command -eq 'lab') { node src/web-server.mjs }
 elseif ($Command -eq 'gifts') { node src/gift-server.mjs }

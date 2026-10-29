@@ -7,3 +7,5 @@ evidence/
 .env.*
 *.tmp
 *.zip
+sites/shibal-starter/
+sites/shibal-public/
