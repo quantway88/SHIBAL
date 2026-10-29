@@ -7,6 +7,7 @@ import {address,createSolanaRpc} from '@solana/kit';
 import {fetchMint,fetchAllToken,TOKEN_PROGRAM_ADDRESS} from '@solana-program/token';
 import {fetchMetadata,findMetadataPda} from '@metaplex-foundation/mpl-token-metadata-kit';
 import {wallet} from './wallet.mjs';
+import {giftBalances} from './gift-balances.mjs';
 import {assertDevnet,validateConfig,units,ata,buildSend} from './token.mjs';
 import {read,save,json,submit,reconcile} from './journal.mjs';
 import {authorize,validateTransfer} from './web-guard.mjs';
@@ -26,7 +27,8 @@ async function state(force=false){
  const m=await fetchMint(rpc,mint,{commitment:'confirmed'}),[ta,tb]=await fetchAllToken(rpc,[a,b],{commitment:'confirmed'});
  if(m.programAddress!==TOKEN_PROGRAM_ADDRESS||m.data.supply!==units(c.supply,c.decimals)||m.data.decimals!==c.decimals||m.data.mintAuthority.__option!=='None'||m.data.freezeAuthority.__option!=='None')throw Error('Mint invariant failed');
  for(const [t,owner] of [[ta,payer.address],[tb,recipient.address]])if(t.programAddress!==TOKEN_PROGRAM_ADDRESS||t.data.owner!==owner||t.data.mint!==mint)throw Error('Token account mismatch');
- if(ta.data.amount+tb.data.amount!==m.data.supply)throw Error('Test wallet balance invariant failed');
+ const escrow=await giftBalances(rpc,mint);
+ if(ta.data.amount+tb.data.amount+escrow.total!==m.data.supply)throw Error('Test wallet balance invariant failed');
  const metadata=await fetchMetadata(rpc,md,{commitment:'confirmed'});
  cached={mint,network:'devnet',supply:c.supply,decimals:c.decimals,payer:payer.address,recipient:recipient.address,payerBalance:ta.data.amount,recipientBalance:tb.data.amount,mintAuthority:null,freezeAuthority:null,metadataUpdateAuthority:metadata.data.updateAuthority,metadataMutable:metadata.data.isMutable,checkedAt:new Date().toISOString(),history:history()};cacheTime=Date.now();return cached;
 }

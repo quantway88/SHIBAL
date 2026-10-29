@@ -83,7 +83,19 @@ The buttons transfer exactly 18 tokens A → B or B → A. The server checks dev
 
 Run `npm run test:devnet-safety` to simulate revoked mint authority, absent freeze authority, and insufficient balance. The simulation never submits these transactions and checks that supply and balances stay unchanged. Supply remains 1.8 billion for these devnet experiments; mainnet settings are undecided.
 
-## SDK versions
+## Amount-specific gift links (local devnet prototype)
+
+Run `npm run gifts` or `./dev.ps1 gifts`, then open http://127.0.0.1:8182. Choose 18, 180, 1800 or 28. Each amount has its own original 1200×630 PNG, title, server-rendered Open Graph and Twitter Card tags. `/preview/18` and the other amount pages only preview cards; GET requests never create or claim gifts. Actual gift URLs take their immutable amount from the saved gift record, not URL query parameters. Cards deliberately describe the original gift amount rather than its changing claim status, because external previews can be cached.
+
+Creating a gift moves existing tokens from test wallet A to a fresh dedicated test holding wallet. On its page, claim transfers to fixed test wallet B; cancel returns an unclaimed gift to A. This is **local custodial testing**, not a deployed escrow contract, public bearer-link service, X-account authentication, or user-wallet authentication. Anyone with local application access can operate these fixed test wallets. Never expose this signing server with hosting, a tunnel, or port forwarding. Keys stay in the private directory outside the repository. Gift IDs are public identifiers, not passwords or private keys.
+
+Persisted gift records and per-action signed transaction journals are under ignored `evidence/gifts/`. Request retries reuse signatures; persisted claim/refund intent prevents the opposite action. A cross-process lock prevents simultaneous mutations. A process crash leaves `operation.lock` deliberately: stop/verify the recorded process, inspect the matching signed journal and chain status before removing only the stale lock. Do not delete gift records or transaction journals. A timeout is recovered by the same request; an expired or failed transaction requires operator investigation, never a fresh gift ID as a workaround. Automatic expiry/refund is not implemented; cancellation is an explicit action before claim intent.
+
+Offline tests: `npm test`. Explicit on-chain integration checks: `npm run check:gifts:devnet` (requires the gift server and devnet funding). Its saved run IDs make reruns resumable; completed checks are skipped. Checks cover 180/28 claims, 1800 cancellation, duplicate actions, opposing actions, crawler GETs and cross-origin POSTs. The 18-token flow is also tested through Chrome. The integration runner is intentionally outside Node's automatic test filename pattern. Generate PNGs on Windows with `powershell -File scripts/make-cards.ps1`.
+
+**External preview remains unverified:** localhost links cannot be fetched by X or opened from another device. Next, publish only a separate read-only card/landing site to a chosen public HTTPS host, then check real X preview rendering. Public wallet-signed claims need their own authentication and escrow design before public use; do not publish this local signing server. No X post or paid service is created by this prototype.
+
+## Dependency versions
 
 Pinned to a compatible official SDK family: Solana Kit 6.10.0, Token 0.13.0, System 0.12.0 and Metaplex Token Metadata Kit 0.0.3. Metaplex currently specifies Kit ^6.5.0; upgrading to another major requires a coordinated compatibility review. The old web3.js/spl-token tree with 9 audit findings was removed without `npm audit fix --force`.
 

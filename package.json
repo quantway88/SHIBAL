@@ -16,6 +16,8 @@
     "metadata": "node src/cli.mjs metadata",
     "assets": "node src/serve-assets.mjs",
     "lab": "node src/web-server.mjs",
+    "gifts": "node src/gift-server.mjs",
+    "check:gifts:devnet": "node scripts/run-gift-check.mjs",
     "test:devnet-safety": "node src/simulate-safety.mjs"
   },
   "dependencies": {

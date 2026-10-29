@@ -5,7 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {generateKeyPair,createKeyPairSignerFromBytes} from '@solana/kit';
 export const walletDir=path.join(process.env.LOCALAPPDATA||os.homedir(),'SHIBAL-devnet-private');
 export async function wallet(role) {
- if(!['payer','recipient','mint'].includes(role)) throw Error('Unknown wallet role');
+ if(!['payer','recipient','mint'].includes(role)&&!/^gift-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(role)) throw Error('Unknown wallet role');
  fs.mkdirSync(walletDir,{recursive:true,mode:0o700});
  if(process.platform==='win32') {
  const user=execFileSync('whoami',[],{encoding:'utf8'}).trim();

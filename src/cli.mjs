@@ -6,6 +6,7 @@ import {fetchMint,fetchToken,TOKEN_PROGRAM_ADDRESS} from '@solana-program/token'
 import {fetchMetadata,findMetadataPda,getUpdateV1InstructionAsync} from '@metaplex-foundation/mpl-token-metadata-kit';
 import {validateConfig,validateUri,assertDevnet,units,buildMint,buildSend,ata} from './token.mjs';
 import {wallet} from './wallet.mjs';
+import {giftBalances} from './gift-balances.mjs';
 import {submit,reconcile,json,read,save} from './journal.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const c=read(path.join(root,'config.json')); validateConfig(c);
@@ -26,10 +27,11 @@ async function verify(mint,payer,recipient) {
  b=recipientToken.data.amount;
  }
  if(m.programAddress!==TOKEN_PROGRAM_ADDRESS||!m.data.isInitialized||m.data.supply!==units(c.supply,c.decimals)||m.data.decimals!==c.decimals||m.data.mintAuthority.__option!=='None'||m.data.freezeAuthority.__option!=='None') throw Error('Mint invariant failed');
- if(a.programAddress!==TOKEN_PROGRAM_ADDRESS||a.data.mint!==mint||a.data.owner!==payer.address||a.data.amount+b!==m.data.supply) throw Error('Balance invariant failed');
+ const escrow=await giftBalances(rpc,mint);
+ if(a.programAddress!==TOKEN_PROGRAM_ADDRESS||a.data.mint!==mint||a.data.owner!==payer.address||a.data.amount+b+escrow.total!==m.data.supply) throw Error('Balance invariant failed');
  if(meta.data.mint!==mint||meta.data.updateAuthority!==payer.address||!meta.data.isMutable||meta.data.name.replace(/\0/g,'')!==c.name||meta.data.symbol.replace(/\0/g,'')!==c.symbol) throw Error('Metadata invariant failed');
  const result={checkedAt:new Date().toISOString(),mint,totalSupply:m.data.supply,decimals:m.data.decimals,mintAuthority:null,freezeAuthority:null,payer:payer.address,payerBalance:a.data.amount,recipient:recipient.address,recipientBalance:b,metadata:meta.data,explorer:`https://explorer.solana.com/address/${mint}?cluster=devnet`};
- save(path.join(dir,'verification.json'),result);return result;
+ result.giftEscrow=escrow;save(path.join(dir,'verification.json'),result);return result;
 }
 try {
  if(command==='plan') log({...c,status:fs.existsSync(deployFile)?read(deployFile).status:'NOT DEPLOYED',metadata:'mutable; URI empty until hosting selected'});
